@@ -18,21 +18,24 @@ def build_animals_html_items(data):
         diet = characteristics.get("diet")
         type_ = characteristics.get("type")
 
-        item_lines = []
-        if name:
-            item_lines.append(f"Name: {name}<br/>")
-        if diet:
-            item_lines.append(f"Diet: {diet}<br/>")
-        if locations:
-            item_lines.append(f"Location: {locations[0]}<br/>")
-        if type_:
-            item_lines.append(f"Type: {type_}<br/>")
+        # Skip empty items entirely
+        if not any([name, diet, locations, type_]):
+            continue
 
-        # Only add the <li> if there is any content
-        if item_lines:
-            parts.append('<li class="cards__item">')
-            parts.extend(item_lines)
-            parts.append("</li>")
+        parts.append('<li class="cards__item">')
+        # Title
+        if name:
+            parts.append(f'  <div class="card__title">{name}</div>')
+        # Body text with labeled lines
+        parts.append('  <p class="card__text">')
+        if diet:
+            parts.append(f'      <strong>Diet:</strong> {diet}<br/>')
+        if locations:
+            parts.append(f'      <strong>Location:</strong> {locations[0]}<br/>')
+        if type_:
+            parts.append(f'      <strong>Type:</strong> {type_}<br/>')
+        parts.append('  </p>')
+        parts.append('</li>')
     return "\n".join(parts)
 
 def read_template(path):
@@ -45,12 +48,9 @@ def main():
     data = load_data(DATA_PATH)
     items_html = build_animals_html_items(data)
     template = read_template(TEMPLATE_PATH)
-    # Replace the placeholder with the generated <li> items
     html_out = template.replace("__REPLACE_ANIMALS_INFO__", items_html)
-    # Write the result to animals.html
     write_output(OUTPUT_PATH, html_out)
     print(f"Wrote {OUTPUT_PATH}")
 
 if __name__ == "__main__":
     main()
-
